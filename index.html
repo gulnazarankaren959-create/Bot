@@ -3,254 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro Signals AI</title>
+    <title>VIP Signals</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background-color: #0e0e0e; 
-            color: #fff; 
-            font-family: 'Roboto', sans-serif; 
-            margin: 0; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh;
+        :root {
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --bg-color: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            --green: #00ff88;
+            --red: #ff0055;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Чтобы фон не скроллился */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Анимированный фон (частицы) */
+        #particles {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% -20%, #1a0b2e, #000000);
+        }
+
+        .container {
+            padding: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
             box-sizing: border-box;
         }
 
-        /* Заголовок */
-        h2 { text-align: center; color: #888; font-size: 14px; margin-top: 0; letter-spacing: 1.5px; text-transform: uppercase; }
-
-        /* Блок выбора пары */
-        .control-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; font-weight: bold; }
-        
-        .custom-select {
-            position: relative;
-            background: #1c1c1e;
-            border-radius: 12px;
-            border: 1px solid #333;
+        h2 {
+            text-align: center;
+            font-weight: 700;
+            font-size: 24px;
+            background: linear-gradient(90deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
         }
-        
+
+        /* Стеклянные панели */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        label {
+            display: block;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Селект */
         select {
             width: 100%;
-            padding: 15px;
-            background: transparent;
-            border: none;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
             color: white;
-            font-size: 16px;
-            appearance: none; /* Убираем стандартную стрелку */
+            padding: 15px;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
             outline: none;
-            font-weight: bold;
-        }
-        
-        /* Стрелочка для селекта */
-        .custom-select::after {
-            content: '▼';
-            position: absolute;
-            right: 15px;
-            top: 18px;
-            color: #007aff;
-            font-size: 12px;
-            pointer-events: none;
+            appearance: none;
         }
 
         /* Кнопки времени */
-        .time-selector {
+        .time-box {
             display: flex;
             gap: 10px;
-            background: #1c1c1e;
-            padding: 5px;
-            border-radius: 12px;
-            border: 1px solid #333;
         }
-        
         .t-btn {
             flex: 1;
-            background: transparent;
-            border: none;
-            color: #666;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            transition: 0.2s;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+            padding: 12px;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            transition: 0.3s;
         }
-        
         .t-btn.active {
-            background: #333;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
         }
 
-        /* КАРТОЧКА СИГНАЛА */
-        .signal-card {
-            background: #151517;
-            border-radius: 20px;
-            padding: 0;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-            display: none; /* Скрыто по умолчанию */
-            position: relative;
-        }
-
-        .card-header {
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2a2a2a;
-        }
-
-        .pair-display { font-size: 18px; font-weight: 900; color: #fff; }
-        .time-display { font-size: 14px; color: #888; background: #222; padding: 4px 8px; border-radius: 6px; }
-
-        /* Область графика */
-        .chart-area {
-            position: relative;
-            height: 180px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 100%);
-        }
-        
-        canvas { width: 100%; height: 100%; }
-
-        .signal-result {
-            padding: 20px;
-            text-align: center;
-        }
-
-        .direction-box {
-            font-size: 28px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .green { color: #2ecc71; text-shadow: 0 0 20px rgba(46, 204, 113, 0.4); }
-        .red { color: #e74c3c; text-shadow: 0 0 20px rgba(231, 76, 60, 0.4); }
-
-        /* Кнопка действия */
-        .main-btn {
-            background: linear-gradient(135deg, #007aff, #0051aa);
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
-            cursor: pointer;
-            margin-top: auto;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .main-btn:active { transform: scale(0.98); }
-
-        /* Анимация сканирования */
-        .loader-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
+        /* Карточка результата */
+        .result-card {
+            flex-grow: 1;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-            border-radius: 20px;
-        }
-        .radar {
-            width: 60px; height: 60px;
-            border: 2px solid #007aff;
-            border-radius: 50%;
             position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.15);
         }
-        .radar::after {
+
+        /* Канвас графика */
+        .chart-container {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            margin: 20px 0;
+        }
+        canvas { width: 100%; height: 100%; }
+
+        /* Итоговый текст сигнала */
+        .signal-text {
+            font-size: 42px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 10px;
+            text-shadow: 0 0 30px currentColor;
+        }
+
+        /* Главная кнопка */
+        .glow-btn {
+            background: linear-gradient(135deg, var(--secondary), #b200ff);
+            width: 100%;
+            padding: 20px;
+            border-radius: 18px;
+            border: none;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(112, 0, 255, 0.4);
+            margin-top: auto;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s;
+        }
+        .glow-btn:active { transform: scale(0.97); }
+        
+        /* Блик на кнопке */
+        .glow-btn::before {
             content: '';
             position: absolute;
-            top: 50%; left: 50%;
-            width: 50%; height: 50%;
-            background: linear-gradient(45deg, rgba(0, 122, 255, 0) 0%, #007aff 100%);
-            border-radius: 100% 0 0 0;
-            top: 0; left: 0;
-            transform-origin: 100% 100%;
-            animation: radar-spin 1.5s linear infinite;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shine 3s infinite;
         }
-        @keyframes radar-spin { 100% { transform: rotate(360deg); } }
-        
-        .loading-text { margin-top: 15px; color: #007aff; font-size: 14px; font-weight: bold; letter-spacing: 1px; }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+
+        /* Лоадер */
+        .scanner {
+            width: 100%; height: 200px;
+            position: relative;
+            background: linear-gradient(to bottom, transparent, rgba(0, 242, 255, 0.1), transparent);
+            border-top: 2px solid var(--primary);
+            border-bottom: 2px solid var(--primary);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 20px;
+            letter-spacing: 4px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            animation: scan 1.5s infinite alternate;
+        }
+        @keyframes scan { from { opacity: 0.5; box-shadow: 0 0 10px var(--primary); } to { opacity: 1; box-shadow: 0 0 30px var(--primary); } }
 
     </style>
 </head>
 <body>
 
-    <h2>AI Trading Bot v4.0</h2>
+    <canvas id="particles"></canvas>
 
-    <div class="control-group">
-        <label>АКТИВ (ВАЛЮТНАЯ ПАРА)</label>
-        <div class="custom-select">
+    <div class="container">
+        <h2>Quantum AI Signals</h2>
+
+        <div class="glass-panel">
+            <label>Asset Selection</label>
             <select id="pairSelect">
-                <optgroup label="🔥 Популярные">
-                    <option value="EUR/USD">EUR/USD (92%)</option>
-                    <option value="GBP/USD">GBP/USD (89%)</option>
-                    <option value="USD/JPY">USD/JPY (87%)</option>
-                </optgroup>
-                <optgroup label="💎 Crypto">
-                    <option value="BTC/USD">Bitcoin (BTC/USD)</option>
-                    <option value="ETH/USD">Ethereum (ETH/USD)</option>
-                </optgroup>
-                <optgroup label="⚡ OTC (Выходные)">
-                    <option value="EUR/USD OTC">EUR/USD OTC</option>
-                    <option value="GBP/USD OTC">GBP/USD OTC</option>
-                    <option value="USD/CHF OTC">USD/CHF OTC</option>
-                    <option value="NZD/USD OTC">NZD/USD OTC</option>
-                </optgroup>
+                <option value="EUR/USD">EUR/USD (OTC)</option>
+                <option value="GBP/USD">GBP/USD (OTC)</option>
+                <option value="USD/JPY">USD/JPY (OTC)</option>
+                <option value="BTC/USD">BITCOIN (CRYPTO)</option>
+                <option value="ETH/USD">ETHEREUM (CRYPTO)</option>
+                <option value="GOLD">GOLD (COMMODITY)</option>
             </select>
         </div>
+
+        <div class="glass-panel" style="background: transparent; border: none; padding: 0;">
+            <div class="time-box">
+                <button class="t-btn active" onclick="selectTime(this, '1 M')">1 MIN</button>
+                <button class="t-btn" onclick="selectTime(this, '3 M')">3 MIN</button>
+                <button class="t-btn" onclick="selectTime(this, '5 M')">5 MIN</button>
+            </div>
+        </div>
+
+        <div id="scanner" class="scanner">
+            AI ANALYZING...
+        </div>
+
+        <div id="resultCard" class="glass-panel result-card">
+            <div style="width: 100%; display: flex; justify-content: space-between; font-size: 14px; color: #888;">
+                <span id="resPair">EUR/USD</span>
+                <span id="resTime">1 MIN</span>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chartCanvas"></canvas>
+            </div>
+
+            <div id="signalText" class="signal-text">Wait</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 5px;">PROBABILITY: 94%</div>
+        </div>
+
+        <button class="glow-btn" onclick="getSignal()">Get Signal</button>
     </div>
-
-    <div class="control-group">
-        <label>ВРЕМЯ ЭКСПИРАЦИИ</label>
-        <div class="time-selector">
-            <button class="t-btn active" onclick="selectTime(this, '1 мин')">1 МИН</button>
-            <button class="t-btn" onclick="selectTime(this, '3 мин')">3 МИН</button>
-            <button class="t-btn" onclick="selectTime(this, '5 мин')">5 МИН</button>
-        </div>
-    </div>
-
-    <div id="resultCard" class="signal-card">
-        <div class="loader-overlay" id="loader">
-            <div class="radar"></div>
-            <div class="loading-text">ANALYZING MARKET...</div>
-        </div>
-
-        <div class="card-header">
-            <div class="pair-display" id="resPair">EUR/USD</div>
-            <div class="time-display" id="resTime">1 мин</div>
-        </div>
-
-        <div class="chart-area">
-            <canvas id="chartCanvas"></canvas>
-        </div>
-
-        <div class="signal-result">
-            <div id="resDirection" class="direction-box green">
-                </div>
-        </div>
-    </div>
-
-    <button class="main-btn" onclick="getSignal()">ПОЛУЧИТЬ СИГНАЛ</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let selectedTime = '1 мин';
+        let selectedTime = '1 M';
+
+        // --- ЛОГИКА ФОНА (ЧАСТИЦЫ) ---
+        const pCanvas = document.getElementById('particles');
+        const pCtx = pCanvas.getContext('2d');
+        let particlesArray;
+
+        pCanvas.width = window.innerWidth;
+        pCanvas.height = window.innerHeight;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * pCanvas.width;
+                this.y = Math.random() * pCanvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() * 1) - 0.5;
+                this.speedY = (Math.random() * 1) - 0.5;
+                this.color = 'rgba(0, 242, 255, ' + Math.random() * 0.5 + ')';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > pCanvas.width) this.x = 0;
+                if (this.x < 0) this.x = pCanvas.width;
+                if (this.y > pCanvas.height) this.y = 0;
+                if (this.y < 0) this.y = pCanvas.height;
+            }
+            draw() {
+                pCtx.fillStyle = this.color;
+                pCtx.beginPath();
+                pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                pCtx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            for (let i = 0; i < 50; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+        
+        function animateParticles() {
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        initParticles();
+        animateParticles();
+
+        // --- ЛОГИКА БОТА ---
 
         function selectTime(btn, time) {
             document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
@@ -260,108 +316,92 @@
 
         function getSignal() {
             const pair = document.getElementById('pairSelect').value;
-            const card = document.getElementById('resultCard');
-            const loader = document.getElementById('loader');
+            const scanner = document.getElementById('scanner');
+            const resCard = document.getElementById('resultCard');
             
-            // Показываем карточку и лоадер
-            card.style.display = 'block';
-            loader.style.display = 'flex';
+            // Сброс и запуск анимации
+            resCard.style.display = 'none';
+            scanner.style.display = 'flex';
             
-            // Скролл к карточке (чтобы было видно на маленьких экранах)
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            tg.HapticFeedback.impactOccurred('medium');
 
-            // Имитация задержки анализа (2-3 секунды)
             setTimeout(() => {
-                const isUp = Math.random() > 0.5; // Случайный сигнал
-                displayResult(pair, selectedTime, isUp);
-                loader.style.display = 'none';
-                tg.HapticFeedback.notificationOccurred('success'); // Вибрация
-            }, 2500);
+                scanner.style.display = 'none';
+                resCard.style.display = 'flex';
+                
+                const isUp = Math.random() > 0.5;
+                showResult(pair, selectedTime, isUp);
+                
+                tg.HapticFeedback.notificationOccurred('success');
+            }, 2000);
         }
 
-        function displayResult(pair, time, isUp) {
+        function showResult(pair, time, isUp) {
             document.getElementById('resPair').innerText = pair;
             document.getElementById('resTime').innerText = time;
             
-            const dirBox = document.getElementById('resDirection');
-            if (isUp) {
-                dirBox.innerHTML = "BUY 🚀 ВВЕРХ";
-                dirBox.className = "direction-box green";
+            const txt = document.getElementById('signalText');
+            
+            if(isUp) {
+                txt.innerText = "BUY 🟢";
+                txt.style.color = "var(--green)";
+                txt.style.textShadow = "0 0 30px var(--green)";
             } else {
-                dirBox.innerHTML = "SELL 🔻 ВНИЗ";
-                dirBox.className = "direction-box red";
+                txt.innerText = "SELL 🔴";
+                txt.style.color = "var(--red)";
+                txt.style.textShadow = "0 0 30px var(--red)";
             }
-
-            drawCandleChart(isUp);
+            
+            drawNeonChart(isUp);
         }
 
-        // Рисуем красивые свечи (имитация графика)
-        function drawCandleChart(isUp) {
+        function drawNeonChart(isUp) {
             const canvas = document.getElementById('chartCanvas');
             const ctx = canvas.getContext('2d');
-            
-            // Настройка размера канваса под экран
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
-            const w = canvas.width;
-            const h = canvas.height;
+            
+            ctx.clearRect(0,0, canvas.width, canvas.height);
 
-            ctx.clearRect(0, 0, w, h);
+            const color = isUp ? '#00ff88' : '#ff0055';
+            
+            // Настройка свечения линии
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
 
-            // Рисуем сетку
-            ctx.strokeStyle = "rgba(255,255,255,0.05)";
             ctx.beginPath();
-            for(let i=0; i<w; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,h); }
-            for(let i=0; i<h; i+=40) { ctx.moveTo(0,i); ctx.lineTo(w,i); }
+            
+            // Генерация красивой линии
+            let y = isUp ? canvas.height : 0;
+            const step = canvas.width / 10;
+            
+            ctx.moveTo(0, isUp ? canvas.height - 20 : 20);
+
+            for(let x = 0; x <= canvas.width; x += step) {
+                // Случайные колебания, но с общим трендом
+                let trend = isUp ? -15 : 15;
+                let random = (Math.random() * 30) - 15;
+                y = y + trend + random;
+                
+                // Ограничитель
+                if(y < 10) y = 10;
+                if(y > canvas.height - 10) y = canvas.height - 10;
+                
+                ctx.lineTo(x, y);
+            }
             ctx.stroke();
 
-            // Параметры для генерации свечей
-            let price = h / 2;
-            const candleWidth = 15;
-            const gap = 10;
-            const candlesCount = Math.floor(w / (candleWidth + gap));
-            
-            // Генерация тренда
-            // Если isUp = true, тренд должен закончиться выше, чем начался
-            
-            for (let i = 0; i < candlesCount; i++) {
-                // Логика тренда: ближе к концу подгоняем под результат
-                let trend = 0;
-                if (i > candlesCount * 0.7) {
-                    trend = isUp ? -2 : 2; // -2 идет вверх (координаты перевернуты)
-                }
-
-                let move = (Math.random() * 20 - 10) + trend;
-                let open = price;
-                let close = price + move;
-                
-                // Ограничиваем, чтобы не улетело за экран
-                if (close < 20) close = 20;
-                if (close > h - 20) close = h - 20;
-
-                let high = Math.min(open, close) - Math.random() * 15;
-                let low = Math.max(open, close) + Math.random() * 15;
-
-                const x = i * (candleWidth + gap) + 10;
-                const isGreen = close < open; // В canvas Y растет вниз, поэтому если close < open, это рост
-
-                // Цвет свечи
-                ctx.fillStyle = isGreen ? '#2ecc71' : '#e74c3c';
-                ctx.strokeStyle = ctx.fillStyle;
-
-                // Рисуем тень (палочку)
-                ctx.beginPath();
-                ctx.moveTo(x + candleWidth/2, high);
-                ctx.lineTo(x + candleWidth/2, low);
-                ctx.stroke();
-
-                // Рисуем тело свечи
-                const candleHeight = Math.abs(close - open);
-                const y = Math.min(open, close);
-                ctx.fillRect(x, y, candleWidth, Math.max(candleHeight, 1)); // мин высота 1px
-
-                price = close;
-            }
+            // Добавляем градиент под линией
+            ctx.shadowBlur = 0;
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, isUp ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 0, 85, 0.2)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fill();
         }
     </script>
 </body>
